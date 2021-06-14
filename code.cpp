@@ -2,6 +2,8 @@
 using namespace std;
 typedef long long ll;
 
+const ll block = 4000000;
+
 map<string, int> txId;
 vector<ll> fee, weight;
 vector<vector<int>> par;
@@ -39,9 +41,11 @@ vector<string> split(string st, string tok){
 void input(){
     string st;
     int id=0;
+
     cin>>st;
+
     while(cin>>st){
-        id++;
+
         vector<string> parts = split(st, ",");
 
         for(int la=0;la<parts.size();la++)
@@ -66,14 +70,9 @@ void input(){
         }
 
         par.push_back(p);
-    }
 
-    // for(int la=0;la<fee.size();la++){
-    //     cout<<la+1<<' '<<fee[la]<<' '<<weight[la]<<' ';
-    //     for(auto it: par[la])
-    //         cout<<it<<' ';
-    //     cout<<endl;
-    // }
+        id++;
+    }
 }
 
 int main(int arg, char *args[]) {
@@ -85,7 +84,76 @@ int main(int arg, char *args[]) {
 
     input();
 
+    int n=fee.size();
+    // for(int la=0;la<n;la++){
+    //     cout<<la<<' '<<fee[la]<<' '<<weight[la]<<' ';
+    //     for(auto it: par[la])
+    //         cout<<it<<' ';
+    //     cout<<endl;
+    // }
 
+    priority_queue<pair<double, int>> q;
+    vector<bool> txTaken(n, false);
+
+    int la, lb;
+
+    auto find_wt_fee = [&](int idx){
+        double f=0, w=0;
+
+        if(!txTaken[idx]){
+            f+=fee[idx];
+            w+=weight[idx];
+        }
+
+        for(auto it: par[idx]){
+            if(!txTaken[it]){
+                f+=fee[it];
+                w+=weight[it];
+            }
+        }
+
+        return make_pair(f, w);
+    };
+
+    for(la=0;la<n;la++){
+        pair<double, double> data = find_wt_fee(la);
+        q.push({data.first/data.second, la});
+    }
+
+    ll left = block;
+
+    while(!q.empty()){
+        auto d = q.top();   q.pop();
+        // cout<<d.first<<' '<<d.second<<endl;
+        int tx = d.second;
+        pair<double, double> data = find_wt_fee(tx);
+        double f=data.first, w=data.second;
+
+        // if(f/w < d.second)
+        //     continue;
+
+        if(w<=left){
+            left-=w;
+            txTaken[tx]=true;
+            for(auto it: par[tx]){
+                txTaken[it]=true;
+            }
+        }
+    }
+
+    vector<string> validTx;
+
+    for(auto it: txId){
+        if(txTaken[it.second])
+            validTx.push_back(it.first);
+    }
+
+    sort(validTx.begin(), validTx.end(), [](string &a, string &b){
+        return txId[a]<txId[b];
+    });
+
+    for(auto it: validTx)
+        cout<<it<<endl;
 
     return 0;
 }
