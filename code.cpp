@@ -120,7 +120,7 @@ int main(int arg, char *args[]) {
         q.push({data.first/data.second, la});
     }
 
-    ll left = block;
+    ll left = block, totfee=0;
 
     while(!q.empty()){
         auto d = q.top();   q.pop();
@@ -134,6 +134,7 @@ int main(int arg, char *args[]) {
 
         if(w<=left){
             left-=w;
+            totfee+=f;
             txTaken[tx]=true;
             for(auto it: par[tx]){
                 txTaken[it]=true;
