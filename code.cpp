@@ -4,10 +4,16 @@ typedef long long ll;
 
 const ll block = 4000000;
 
+// mapping each txID starting from 0
 map<string, int> txId;
 vector<ll> fee, weight;
+
+// contains parents of each transcation
 vector<vector<int>> par;
 
+
+
+// trims empty spaces from string
 string trim(string st){
     while(st.back()==' ')
         st.pop_back();
@@ -21,6 +27,8 @@ string trim(string st){
     return st;
 }
 
+
+// splits each line into different parts
 vector<string> split(string st, string tok){
     vector<string> parts;
         
@@ -42,6 +50,7 @@ void input(){
     string st;
     int id=0;
 
+    // to ignore 1st line of csv i.e { tx_id,fee,weight,parents }
     cin>>st;
 
     while(cin>>st){
@@ -85,6 +94,7 @@ int main(int arg, char *args[]) {
     input();
 
     int n=fee.size();
+
     // for(int la=0;la<n;la++){
     //     cout<<la<<' '<<fee[la]<<' '<<weight[la]<<' ';
     //     for(auto it: par[la])
@@ -92,6 +102,8 @@ int main(int arg, char *args[]) {
     //     cout<<endl;
     // }
 
+
+    // greedly take the trancations having higher fee/weight ratio
     priority_queue<pair<double, int>> q;
     vector<bool> txTaken(n, false);
 
@@ -149,6 +161,7 @@ int main(int arg, char *args[]) {
             validTx.push_back(it.first);
     }
 
+    // sort the transactions in order as in the csv file
     sort(validTx.begin(), validTx.end(), [](string &a, string &b){
         return txId[a]<txId[b];
     });
